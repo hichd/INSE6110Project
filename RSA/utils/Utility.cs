@@ -7,7 +7,10 @@ using System.Linq;
 using System.Numerics;
 
 namespace utils
-{
+{   
+    /// <summary>
+    /// General utility provider for number generation, integer/string conversions and manipulations
+    /// </summary>
     public static class Utility
     {
         /// <summary>
@@ -118,16 +121,6 @@ namespace utils
         }
 
         /// <summary>
-        /// Acts as a toggle to writing on console
-        /// </summary>
-        /// <param name="step"></param>
-        /// <param name="showStep"></param>
-        public static void ShowSteps(this string step, bool showStep)
-        {
-            if (showStep) Console.WriteLine(step);
-        }
-
-        /// <summary>
         /// Transforms integer list into a corresponding hex list which is then transormed into a corresponding character list that is joined together to form a string message
         /// </summary>
         /// <param name="integerMessageList"></param>
@@ -156,6 +149,16 @@ namespace utils
             });
 
             return message;
+        }
+
+        /// <summary>
+        /// Acts as a toggle to writing on console
+        /// </summary>
+        /// <param name="step"></param>
+        /// <param name="showStep"></param>
+        public static void ShowSteps(this string step, bool showStep)
+        {
+            if (showStep) Console.WriteLine(step);
         }
 
         public static void ProjectSetup()

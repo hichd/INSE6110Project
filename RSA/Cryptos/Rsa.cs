@@ -5,6 +5,9 @@ using utils;
 
 namespace Cryptos
 {
+    /// <summary>
+    /// RSA model, key setup implementation, encryption/decryption implementations
+    /// </summary>
     public class Rsa
     {
         private const bool ShowSteps = false;

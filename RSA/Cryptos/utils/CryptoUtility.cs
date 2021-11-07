@@ -6,6 +6,9 @@ using utils;
 
 namespace RSA.Cryptos.utils
 {
+    /// <summary>
+    /// Modular arithmetics and cryptographic operations utility provider
+    /// </summary>
     public static class CryptoUtility
     {
         /// <summary>
