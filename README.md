@@ -1,1 +1,1 @@
-INSE6110Project
+INSE6110
