@@ -10,6 +10,11 @@ namespace utils
 {
     public static class Utility
     {
+        /// <summary>
+        /// Randomly selects two prime numbers 16 bits each. Resists to twin primes RSA attacks
+        /// </summary>
+        /// <param name="otherPrime"></param>
+        /// <returns></returns>
         public static BigInteger Generate16BitPrime(BigInteger? otherPrime = null)
         {
             BigInteger result = 4;// initialize to non prime number first
@@ -46,20 +51,30 @@ namespace utils
             return result;
         }
 
+        /// <summary>
+        /// Primality test
+        /// </summary>
+        /// <param name="n"></param>
+        /// <returns></returns>
         public static bool IsPrime(this BigInteger n)
         {
-            var t = (int)(n);
+            var integerN = (int) n;
 
             if (n > 1)
             {
-                return Enumerable.Range(1, t)
-                    .Where(x => t % x == 0)
-                    .SequenceEqual(new[] { 1, t });
+                return Enumerable.Range(1, integerN)// in the range {1, ..., n}
+                    .Where(x => integerN % x == 0)// find set of all numbers X | x such that n mod x = 0
+                    .SequenceEqual(new[] { 1, integerN });// number is prime iff one result is found 
             }
 
             return false;
         }
 
+        /// <summary>
+        /// Transforms string message into a list of 3 byte chunks which are then each converted into corresponding hexadecimal strings to be then converted into a list of corresponding integers
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
         public static List<BigInteger> StringToBigInteger(this string message)
         {
             //Assume that your message is "Hello World",
@@ -90,20 +105,36 @@ namespace utils
             return BigIntegerArr;
         }
 
+        /// <summary>
+        /// Splits string into chunks of specified size
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="maxChunkSize"></param>
+        /// <returns></returns>
         public static IEnumerable<string> ChunksUpto(this string str, int maxChunkSize)
         {
             for (int i = 0; i < str.Length; i += maxChunkSize)
                 yield return str.Substring(i, Math.Min(maxChunkSize, str.Length - i));
         }
 
+        /// <summary>
+        /// Acts as a toggle to writing on console
+        /// </summary>
+        /// <param name="step"></param>
+        /// <param name="showStep"></param>
         public static void ShowSteps(this string step, bool showStep)
         {
             if (showStep) Console.WriteLine(step);
         }
 
+        /// <summary>
+        /// Transforms integer list into a corresponding hex list which is then transormed into a corresponding character list that is joined together to form a string message
+        /// </summary>
+        /// <param name="integerMessageList"></param>
+        /// <returns></returns>
         public static string BigIntegerToString(this List<BigInteger> integerMessageList)
         {
-            var hexArr = new List<string>();
+            var hexArr = new List<string>();// hexadecimal representation
             integerMessageList.ForEach(x =>
             {
                 var mHex = string.Format("0x{0:x16}", x);
@@ -113,7 +144,7 @@ namespace utils
             var message = string.Empty;
 
             var charList = new List<char>();
-            hexArr.ForEach(x =>
+            hexArr.ForEach(x =>// character representation
             {
                 for (var i = 0; i < x.Length; i += 2)
                 {
@@ -133,7 +164,7 @@ namespace utils
             var partner = new PartnerDataProfile();
             var myData = new MyDataProfile();
             partner.EncryptMessage();
-            myData.DecryptMyData();
+            myData.DecryptCipherList();
 
             var txt = $@"
 # IDs
@@ -164,7 +195,7 @@ PARTNER_MESSAGE_AFTER_DECRYPT = '{myData.Message}'
             ";
 
             string[] lines = txt.Split('\n');
-            File.WriteAllLines("output.txt", lines);
+            File.WriteAllLines("data.txt", lines);
 
             ShowSteps(txt, showSteps);
         }

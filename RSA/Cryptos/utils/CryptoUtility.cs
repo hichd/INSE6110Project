@@ -8,7 +8,32 @@ namespace RSA.Cryptos.utils
 {
     public static class CryptoUtility
     {
-        private static Queue EuclideanAlgorithm(BigInteger a, BigInteger n, bool showSteps = true)
+        /// <summary>
+        /// simple Implementation of greatest common divisor
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        /// <returns></returns>
+        public static BigInteger GreatestCommonDivisor(BigInteger a, BigInteger b)
+        {
+            while (a != 0 && b != 0)
+            {
+                if (a > b)
+                    a %= b;
+                else
+                    b %= a;
+            }
+
+            var result = (int)(a) | (int)(b);
+            return result;
+        }
+
+        /// <summary>
+        /// Elaborate implementation of greatest common divisor with steps to use for extended euclidean algorithm
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="b"></param>
+        public static Queue EuclideanAlgorithm(BigInteger a, BigInteger n, bool showSteps = true)
         {
             Utility.ShowSteps($"___ Euclidean Algorithm BGEIN ___", showSteps);
 
@@ -32,7 +57,14 @@ namespace RSA.Cryptos.utils
             return quotientQueue;
         }
 
-        private static BigInteger ExtendedEuclideanAlgorithm(BigInteger a, BigInteger n, bool showSteps = true)
+        /// <summary>
+        /// Implementation of extended euclidean algorithm with steps
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="n"></param>
+        /// <param name="showSteps"></param>
+        /// <returns></returns>
+        public static BigInteger ExtendedEuclideanAlgorithm(BigInteger a, BigInteger n, bool showSteps = true)
         {
             Utility.ShowSteps($"+++ Extended Euclidean Algorithm BEGIN +++", showSteps);
             BigInteger result = 0;
@@ -57,6 +89,13 @@ namespace RSA.Cryptos.utils
             return result;
         }
 
+        /// <summary>
+        /// Implementation of modular multiplicative inverse with steps
+        /// </summary>
+        /// <param name="a"></param>
+        /// <param name="n"></param>
+        /// <param name="showSteps"></param>
+        /// <returns></returns>
         public static BigInteger ModInverse(this BigInteger a, BigInteger n, bool showSteps = true)
         {
             Utility.ShowSteps($"<<<<<<<<<<<<< Multiplicative Modular Inverse BEGIN, {a}^-1 mod {n} >>>>>>>>>>>>>>>>", showSteps);
@@ -64,20 +103,14 @@ namespace RSA.Cryptos.utils
             return result;
         }
 
-        public static BigInteger GreatestCommonDivisor(BigInteger a, BigInteger b)
-        {
-            while (a != 0 && b != 0)
-            {
-                if (a > b)
-                    a %= b;
-                else
-                    b %= a;
-            }
-
-            var result = (int)(a) | (int)(b);
-            return result;
-        }
-
+        /// <summary>
+        /// Implementation of the square and multiply algorithm for equation of the form (m^e) mod n
+        /// </summary>
+        /// <param name="m"></param>
+        /// <param name="e"></param>
+        /// <param name="n"></param>
+        /// <param name="showSteps"></param>
+        /// <returns></returns>
         public static BigInteger SquareAndMultiply(BigInteger m, BigInteger e, BigInteger n, bool showSteps = true)
         {
             Utility.ShowSteps($"================== Square And Multiply BEGIN, computing ({m}^{e}) mod {n} ==================", showSteps);
@@ -119,6 +152,12 @@ namespace RSA.Cryptos.utils
             return result;
         }
 
+        /// <summary>
+        /// Calculates phi(N) = (p - 1) * (q - 1)
+        /// </summary>
+        /// <param name="p"></param>
+        /// <param name="q"></param>
+        /// <returns></returns>
         public static BigInteger RsaPhiFunction(BigInteger p, BigInteger q)
         {
             var a = p - 1;
@@ -127,6 +166,12 @@ namespace RSA.Cryptos.utils
             return result;
         }
 
+        /// <summary>
+        /// Randomly selects public prime exponent e such that e < phi(N) and e and phi(N) are relative prime numbers
+        /// e's value is limited to 999 in order to speed up encryption operations and still resist to low exponent attacks
+        /// </summary>
+        /// <param name="phiOfN"></param>
+        /// <returns></returns>
         public static BigInteger GenerateRsaPublicExponent(this BigInteger phiOfN)
         {
             BigInteger e = 4;// initialize to non prime number first

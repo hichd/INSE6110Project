@@ -9,18 +9,21 @@ namespace Cryptos
     {
         private const bool ShowSteps = false;
 
-        //private paramters
+        #region private paramters
         private BigInteger P { get; set; }
         private BigInteger Q { get; set; }
         private BigInteger PhiOfN { get; set; }
         private BigInteger _d { get; set; }
+        #endregion
 
-        //public parameters
+        #region public parameters
         private BigInteger N { get; set; }
         private BigInteger _e { get; set; }
+        #endregion
 
+        #region Constructors
         /// <summary>
-        /// parameterless constructor, picks 2 large 16 bit non twin primes and exponent
+        /// parameterless constructor, picks 2 large 16 bit non twin primes and exponents
         /// </summary>
         public Rsa()
         {
@@ -28,11 +31,37 @@ namespace Cryptos
         }
 
         /// <summary>
+        /// RSA constructor with parameters for both private primes and public and private exponents
+        /// </summary>
+        /// <param name="p">private prime 1</param>
+        /// <param name="q">private prime 2</param>
+        /// <param name="e">public exponent</param>
+        /// <param name="d">private exponent</param>
+        public Rsa(BigInteger p, BigInteger q, BigInteger e, BigInteger d)
+        {
+            Init(p, q, e, d);
+        }
+
+        /// <summary>
+        /// RSA constructor for partner public key with parameters for exponent and N
+        /// </summary>
+        /// <param name="n">public key parameter N</param>
+        /// <param name="e">public exponent</param>
+        public Rsa(BigInteger e, BigInteger n)
+        {
+            Init(new BigInteger(), new BigInteger(), e, new BigInteger(), n);
+        }
+        #endregion
+
+        #region Init
+        /// <summary>
         /// Initial parameter setup for RSA
         /// </summary>
-        /// <param name="p">private large prime 1</param>
-        /// <param name="q">private large prime 2</param>
-        /// <param name="e">public exponent</param>
+        /// <param name="p">private key parameter large prime 1</param>
+        /// <param name="q">private key parameter large prime 2</param>
+        /// <param name="e">public key exponent</param>
+        /// <param name="d">private key exponent</param>
+        /// <param name="n">public key parameter</param>
         private void Init(BigInteger? p = null, BigInteger? q = null, BigInteger? e = null, BigInteger? d = null, BigInteger? n = null)
         {
             if (!n.HasValue)
@@ -62,7 +91,28 @@ namespace Cryptos
                 Utility.ShowSteps($"RSA public key: N = {N}, e = {e}", ShowSteps);
             }
         }
+        #endregion
 
+        #region Encryption
+
+        /// <summary>
+        /// Takes string message and encrypts it using instance public key paramters
+        /// </summary>
+        /// <param name="m">plaintext message</param>
+        /// <returns>integer representation of the encrypted message</returns>
+        public List<BigInteger> Encrypt(string m)
+        {
+            return Encrypt(m, _e, N, ShowSteps);
+        }
+
+        /// <summary>
+        /// Takes string message and public key
+        /// </summary>
+        /// <param name="m">plaintext message</param>
+        /// <param name="e">public exponent</param>
+        /// <param name="n">public key parameter</param>
+        /// <param name="showSteps"></param>
+        /// <returns>integer representation of the encrypted message</returns>
         public List<BigInteger> Encrypt(string m, BigInteger e, BigInteger n, bool showSteps = true)
         {
             Utility.ShowSteps("******************************************************************************************************", showSteps);
@@ -86,11 +136,43 @@ namespace Cryptos
             return cipherText;
         }
 
-        public List<BigInteger> Encrypt(string m)
+        /// <summary>
+        /// Takes integer cipher and encrypts it using instance public key paramters
+        /// </summary>
+        /// <param name="m">integer representation of plaintext message</param>
+        /// <returns>integer representation of the encrypted message</returns>
+        public BigInteger Encrypt(BigInteger m)
         {
-            return Encrypt(m, _e, N, ShowSteps);
+            return Encrypt(m, _e, N);
         }
 
+        /// <summary>
+        /// Takes integer cipher and encrypts it using passed in public key paramters
+        /// </summary>
+        /// <param name="m">integer representation of plaintext message</param>
+        /// <param name="e">provided public exponent</param>
+        /// <param name="n">provided public key parameter N</param>
+        /// <returns>integer representation of the encrypted message using provided public key</returns>
+        public BigInteger Encrypt(BigInteger m, BigInteger e, BigInteger n)
+        {
+            Utility.ShowSteps("******************************************************************************************************", true);
+            Utility.ShowSteps($"BEGIN RSA ENCRYPTION FOR MESSAGE m = {m}", true);
+
+            var result = CryptoUtility.SquareAndMultiply(m, e, n, true);
+
+            Utility.ShowSteps($"ENCRYPTION ENDED WITH c = {result} :", true);
+            Utility.ShowSteps("/////////////////////////////////////////////////////////////////////////////////////////////////////////", true);
+
+            return result;
+        }
+        #endregion
+
+        #region Decryption
+        /// <summary>
+        /// Decrypts list of integer ciphers into a string message using instance private key parameters
+        /// </summary>
+        /// <param name="cipherList">integer cipher list</param>
+        /// <returns>integer representation of the encrypted message</returns>
         public string Decrypt(List<BigInteger> cipherList)
         {
             Utility.ShowSteps("******************************************************************************************************", ShowSteps);
@@ -117,44 +199,12 @@ namespace Cryptos
         }
 
         /// <summary>
-        /// RSA constructor with parameters for both primes and exponent
+        /// Decrypts single integer cipher into a string message using provided private and public key parameters
         /// </summary>
-        /// <param name="p">private prime 1</param>
-        /// <param name="q">private prime 2</param>
-        /// <param name="e">public exponent</param>
-        public Rsa(BigInteger p, BigInteger q, BigInteger e, BigInteger d)
-        {
-            Init(p, q, e, d);
-        }
-
-        /// <summary>
-        /// RSA constructor for partner public key with parameters for exponent and N
-        /// </summary>
-        /// <param name="n">public N</param>
-        /// <param name="e">public exponent</param>
-        public Rsa(BigInteger e, BigInteger n)
-        {
-            Init(new BigInteger(), new BigInteger(), e, new BigInteger(), n);
-        }
-
-        public BigInteger Encrypt(BigInteger m)
-        {
-            return Encrypt(m, _e, N);
-        }
-
-        public BigInteger Encrypt(BigInteger m, BigInteger e, BigInteger n)
-        {
-            Utility.ShowSteps("******************************************************************************************************", true);
-            Utility.ShowSteps($"BEGIN RSA ENCRYPTION FOR MESSAGE m = {m}", true);
-
-            var result = CryptoUtility.SquareAndMultiply(m, e, n, true);
-
-            Utility.ShowSteps($"ENCRYPTION ENDED WITH c = {result} :", true);
-            Utility.ShowSteps("/////////////////////////////////////////////////////////////////////////////////////////////////////////", true);
-
-            return result;
-        }
-
+        /// <param name="c">integer cipher</param>
+        /// <param name="d">provided private exponent</param>
+        /// <param name="n">provided public key element N</param>
+        /// <returns>integer representation of the decypted integer message</returns>
         public BigInteger Decrypt(BigInteger c, BigInteger d, BigInteger n)
         {
             Utility.ShowSteps("******************************************************************************************************", true);
@@ -168,9 +218,15 @@ namespace Cryptos
             return result;
         }
 
+        /// <summary>
+        /// Decrypts single integer cipher into a string message using instance key parameters
+        /// </summary>
+        /// <param name="c">integer cipher</param>
+        /// <returns>integer representation of the decypted integer message</returns>
         public BigInteger Decrypt(BigInteger c)
         {
             return Decrypt(c, _d, N);
         }
+        #endregion
     }
 }

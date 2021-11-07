@@ -16,13 +16,14 @@ namespace Profiles
         public MyDataProfile()
         {
             PhiOfN = CryptoUtility.RsaPhiFunction(P, Q);
-            N = new BigInteger(1282997161);_e = 311;
+            N = new BigInteger(1282997161);
+            _e = 311;
             ID = 222222222;
-            Message = "My name is cornholio!";
+            Message = "RSA IS THE WAY";
             Rsa = new Rsa(P, Q, _e, _d);
         }
 
-        public void DecryptMyData(List<BigInteger> cipherList = null)
+        public void DecryptCipherList(List<BigInteger> cipherList = null)
         {
             CipherList = cipherList ?? EncryptMessage();
             Cipher = $"[{string.Join(", ", CipherList)}]";

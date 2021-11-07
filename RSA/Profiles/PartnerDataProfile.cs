@@ -11,7 +11,7 @@ namespace Profiles
             _e = new BigInteger(311);
             Rsa = new Rsa(_e, N);
             ID = 1111111;
-            Message = "The many saints of newark";
+            Message = "I LOVE CRYPTOGRAPHY <3";
         }
     }
 }
