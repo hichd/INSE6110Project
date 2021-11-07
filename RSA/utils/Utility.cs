@@ -1,12 +1,12 @@
-﻿using System;
+﻿using Profiles;
+using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace RSA.Cryptos.utils
+namespace utils
 {
     public static class Utility
     {
@@ -83,14 +83,14 @@ namespace RSA.Cryptos.utils
             var BigIntegerArr = new List<BigInteger>();
             foreach (var mHex in mHexList)
             {
-                var mInt = int.Parse(mHex, System.Globalization.NumberStyles.HexNumber);
+                var mInt = int.Parse(mHex, NumberStyles.HexNumber);
                 BigIntegerArr.Add(mInt);
             }
 
             return BigIntegerArr;
         }
 
-        private static IEnumerable<string> ChunksUpto(this string str, int maxChunkSize)
+        public static IEnumerable<string> ChunksUpto(this string str, int maxChunkSize)
         {
             for (int i = 0; i < str.Length; i += maxChunkSize)
                 yield return str.Substring(i, Math.Min(maxChunkSize, str.Length - i));
@@ -120,12 +120,60 @@ namespace RSA.Cryptos.utils
                     var singleHex = x.Substring(i, 2);
                     int num = int.Parse(singleHex, NumberStyles.AllowHexSpecifier);
                     var mChar = (char)num;
-                    message += mChar; 
+                    message += mChar;
                 }
             });
 
             return message;
         }
 
+        public static void ProjectSetup()
+        {
+            var showSteps = true;
+            var partner = new PartnerDataProfile();
+            var myData = new MyDataProfile();
+            partner.EncryptMessage();
+            myData.DecryptMyData();
+
+            var txt = $@"
+# IDs
+MY_ID = {myData.ID}
+PARTNER_ID = {partner.ID}
+
+# my data
+p = {myData.P}
+q = {myData.Q}
+N = {myData.N}
+phi_N = {myData.PhiOfN}
+e = {myData._e}
+d = {myData._d}
+
+# my partner data
+PARTNER_N = {partner.N}
+PARTNER_e = {partner._e}
+
+# encryption
+MY_MESSAGE = '{partner.Message}'
+MY_MESSAGE_chunks = {partner.MessageChunks}
+MY_CIPHERTEXT = {partner.Cipher}
+
+# decryption
+PARTNER_CIPHERTEXT = {myData.Cipher}
+PARTNER_MESSAGE_chunks_AFTER_DECRYPT = {myData.MessageChunks}
+PARTNER_MESSAGE_AFTER_DECRYPT = '{myData.Message}'
+            ";
+
+            string[] lines = txt.Split('\n');
+            File.WriteAllLines("output.txt", lines);
+
+            ShowSteps(txt, showSteps);
+        }
+
+        public static void HandleErrors(Exception e)
+        {
+            Console.Clear();
+            Console.WriteLine($"Error Message:\n{e.Message}\nStack trace: {e.StackTrace}\nPress any key to restart");
+            Console.ReadKey();
+        }
     }
 }

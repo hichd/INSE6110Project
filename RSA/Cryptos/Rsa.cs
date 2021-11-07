@@ -1,13 +1,13 @@
 ﻿using RSA.Cryptos.utils;
-using System;
 using System.Collections.Generic;
 using System.Numerics;
+using utils;
 
 namespace Cryptos
 {
     public class Rsa
     {
-        private const bool ShowSteps = true;
+        private const bool ShowSteps = false;
 
         //private paramters
         private BigInteger P { get; set; }
@@ -39,27 +39,27 @@ namespace Cryptos
             {
                 P = p ?? Utility.Generate16BitPrime();
                 Q = q ?? Utility.Generate16BitPrime(P);
-                Console.WriteLine($"1. Select two prime numbers: P = {P}, Q = {Q}");
+                Utility.ShowSteps($"1. Select two prime numbers: P = {P}, Q = {Q}", ShowSteps);
 
                 N = P * Q;
-                Console.WriteLine($"2. Compute N = P * Q = {P} * {Q} = {N}");
+                Utility.ShowSteps($"2. Compute N = P * Q = {P} * {Q} = {N}", ShowSteps);
 
                 PhiOfN = CryptoUtility.RsaPhiFunction(P, Q);
-                Console.WriteLine($"3. Compute Phi(N) = (P - 1) * (Q - 1)  = ({P} - 1) * ({Q} - 1) = {PhiOfN}");
+                Utility.ShowSteps($"3. Compute Phi(N) = (P - 1) * (Q - 1)  = ({P} - 1) * ({Q} - 1) = {PhiOfN}", ShowSteps);
 
                 _e = e ?? PhiOfN.GenerateRsaPublicExponent();
-                Console.WriteLine($"4. Select a public-key e = {_e}");
+                Utility.ShowSteps($"4. Select a public-key e = {_e}", ShowSteps);
 
                 _d = d ?? _e.ModInverse(PhiOfN, ShowSteps);
-                Console.WriteLine($"5. Find the corresponding private-key d = {_d}");
+                Utility.ShowSteps($"5. Find the corresponding private-key d = {_d}", ShowSteps);
 
-                Console.WriteLine($"6. Publish your public-key(N, e) = ({N}, {_e})");
+                Utility.ShowSteps($"6. Publish your public-key(N, e) = ({N}, {_e})", ShowSteps);
             }
             else
             {
                 N = n.Value;
                 _e = e.Value;
-                Console.WriteLine($"RSA public key: N = {N}, e = {e}");
+                Utility.ShowSteps($"RSA public key: N = {N}, e = {e}", ShowSteps);
             }
         }
 
