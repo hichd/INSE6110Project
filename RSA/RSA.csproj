@@ -44,6 +44,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Cryptos\DiffieHellman.cs" />
     <Compile Include="Cryptos\utils\CryptoUtility.cs" />
     <Compile Include="utils\Utility.cs" />
     <Compile Include="Profiles\BaseDataProfile.cs" />

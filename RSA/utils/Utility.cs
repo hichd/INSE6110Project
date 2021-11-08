@@ -203,6 +203,13 @@ PARTNER_MESSAGE_AFTER_DECRYPT = '{myData.Message}'
             ShowSteps(txt, showSteps);
         }
 
+        public static void PressAnyKeyToContinue()
+        {
+            Console.WriteLine("Press any key to continue");
+            Console.ReadKey();
+            Console.Clear();
+        }
+
         public static void HandleErrors(Exception e)
         {
             Console.Clear();

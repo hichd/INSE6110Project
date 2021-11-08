@@ -1,4 +1,5 @@
 ﻿using RSA.Cryptos.utils;
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 using utils;
@@ -10,27 +11,27 @@ namespace Cryptos
     /// </summary>
     public class Rsa
     {
-        private const bool ShowSteps = false;
+        private const bool ShowSteps = true;
 
         #region private paramters
-        private BigInteger P { get; set; }
-        private BigInteger Q { get; set; }
-        private BigInteger PhiOfN { get; set; }
-        private BigInteger _d { get; set; }
+        public BigInteger P { get; set; }
+        public BigInteger Q { get; set; }
+        public BigInteger PhiOfN { get; set; }
+        public BigInteger _d { get; set; }
         #endregion
 
         #region public parameters
-        private BigInteger N { get; set; }
-        private BigInteger _e { get; set; }
+        public BigInteger N { get; set; }
+        public BigInteger _e { get; set; }
         #endregion
 
         #region Constructors
         /// <summary>
         /// parameterless constructor, picks 2 large 16 bit non twin primes and exponents
         /// </summary>
-        public Rsa()
+        public Rsa(bool isInit = false)
         {
-            Init();
+            if (isInit) Init();
         }
 
         /// <summary>
@@ -40,7 +41,7 @@ namespace Cryptos
         /// <param name="q">private prime 2</param>
         /// <param name="e">public exponent</param>
         /// <param name="d">private exponent</param>
-        public Rsa(BigInteger p, BigInteger q, BigInteger e, BigInteger d)
+        public Rsa(BigInteger p, BigInteger q, BigInteger e, BigInteger? d = null)
         {
             Init(p, q, e, d);
         }
@@ -65,7 +66,7 @@ namespace Cryptos
         /// <param name="e">public key exponent</param>
         /// <param name="d">private key exponent</param>
         /// <param name="n">public key parameter</param>
-        private void Init(BigInteger? p = null, BigInteger? q = null, BigInteger? e = null, BigInteger? d = null, BigInteger? n = null)
+        public void Init(BigInteger? p = null, BigInteger? q = null, BigInteger? e = null, BigInteger? d = null, BigInteger? n = null)
         {
             if (!n.HasValue)
             {
@@ -230,6 +231,208 @@ namespace Cryptos
         {
             return Decrypt(c, _d, N);
         }
+
+        public BigInteger DecryptWithCrt(BigInteger c)
+        {
+            Console.WriteLine("***************************** RSA Decryption with CRT ***************************");
+            Console.WriteLine($@"
+    m_p = ({c}^{_d}) mod {P} = ({c} mod {P})^({_d} mod ({P} - 1)) mod {P} = ({c % P}^{_d % (P - 1)}) mod {P}
+    m_q = ({c}^{_d}) mod {Q} = ({c} mod {Q})^({_d} mod ({Q} - 1)) mod {Q} = ({c % Q}^{_d % (Q - 1)}) mod {Q}
+            ");
+
+            var m_p = CryptoUtility.SquareAndMultiply(c % P, _d % (P - 1), N) % P;
+            var m_q = CryptoUtility.SquareAndMultiply(c % Q, _d % (Q - 1), N) % Q;
+
+            Console.WriteLine($@"
+    m_p = ({c % P}^{_d % (P - 1)}) mod {P} = {m_p} mod {P}
+    m_q = ({c % Q}^{_d % (Q - 1)}) mod {Q} = {m_q} mod {Q}
+            ");
+
+            var message = CryptoUtility.ChineeseRemainderTheorem2(m_p, P, m_q, Q);
+            Console.WriteLine($"***************** RSA CRT decryption ended, if both CRT checks true then message = {message}");
+            return message;
+        }
+        #endregion
+
+        #region Attacks
+        public void KnownPhiOfNAttack(BigInteger phiOfN, BigInteger N)
+        {
+            var a = 1; 
+            var b = -(N + 1 - phiOfN);
+            var c = N;
+            var insideSqrt = (b * b) - (4 * a * c);
+            var sqrt = Math.Sqrt((double)insideSqrt);
+            var minResult = (-b - (BigInteger)sqrt) / 2;
+            var maxResult = (-b + (BigInteger)sqrt) / 2;
+
+            P = minResult < 0 ? maxResult : minResult;
+            Console.WriteLine($@"
+        Known phi(N) attack: if phi(N) is known, we can factorize it to know P and Q
+            hi(N) = (P - 1) * (Q - 1) = (P - 1) * (N/P - 1)
+            {phiOfN} = (P - 1) * (Q - 1) = (P - 1) * (N/P - 1) = (P - 1) * (Q - 1) = (P - 1) * ({N}/P - 1)
+            1 * P^2 - (N + 1 - phi(N))P + N = 0
+            1 * P^2 - ({N} + 1 - {phiOfN}) * P + {N} = 0
+            a = 1
+            b = - ({N} + 1 - {phiOfN}) = {b}
+            c = {N}
+            P = (-b ± sqrt[b^2 - 4 * a * c])/(2 * a) = (-{b} ± sqrt[{b*b} - 4 * {a*c}])/2 = ({-b} ± sqrt[{insideSqrt}])/2 = ({-b} ± {sqrt})/2
+            P = {minResult} or P = {maxResult}, do not pick negative result
+
+            Q = N / P;
+            P = {P} and Q = {Q}, N = P * Q = {P} * {Q} = {P*Q} = {N}
+        END OF KNOW PHI OF N ATTACK");
+        }
+
+        public void TwinPrimesAttack(BigInteger n)
+        {
+            N = n;
+            var a = 1;
+            var b = 2;
+            var c = -N;
+            var insideSqrt = (b * b) - (4 * a * c);
+            var sqrt = Math.Sqrt((double)insideSqrt);
+            var maxResult = (-b + (BigInteger)sqrt) / 2;
+            P = maxResult;
+            Q = N / P;
+
+            Console.WriteLine($@"
+        Twin primes attack: N = {N} = P * Q = P * (P - 2)
+            0 = P^2 + 2 * P - N
+            0 = P^2 + 2 * P - {N}
+            a = {a}
+            b = {b}
+            c = {c}
+            P = (- b + sqrt[b^2 - 4 * a * c])/(2 * a) = ({-b} + sqrt[{insideSqrt}])/2 = ({-b} + {sqrt})/2  = {maxResult}
+            disregard negative part of factorization
+        Twin primes attack: N = {N} = {P} * {Q} = {P} * ({P} - 2) = {P * Q}; Q = N / P = {N} / {P} = {Q}");
+        }
+
+        public void CommonPAttack(BigInteger n1, BigInteger n2)
+        {
+            var n = (BigInteger)Math.Max((double)n1, (double)n2);
+            var a = (BigInteger)Math.Min((double)n1, (double)n2);
+            var p = CryptoUtility.EuclideanAlgorithm(a, n).gcd;
+
+            Console.WriteLine($@"
+        Common P Attack Start
+            N1 = P * Q1
+            {n1} = P * Q1
+
+            N2 = P * Q2
+            {n2} = P * Q2
+
+            same P for multiple communications
+            P = gcd(N1, N2) = gcd({n1}, {n2}) = {p}
+
+            total break
+            Q1 = N1 / P
+            Q1 = {n1} / {p} = {(double)n1/(double)p}
+
+            Q2 = N2 / P
+            Q2 = {n2} / {p} = {(double)n2 / (double)p}
+        Common P Attack End
+        ");
+        }
+
+        public void LowExponentAttack3(BigInteger c1, BigInteger n1, BigInteger c2, BigInteger n2, BigInteger c3, BigInteger n3)
+        {
+            _e = 3;
+
+            Console.WriteLine($@"
+        Low exponent attack, e = 3
+            
+            X = c1 mod N1 = {c1} mod {n1}
+            X = c2 mod N2 = {c2} mod {n2}
+            X = c3 mod N3 = {c3} mod {n3}
+            ");
+
+            var mCube = CryptoUtility.ChineeseRemainderTheorem3(c1, n1, c2, n2, c3, n3);
+            var m = Math.Pow((double)mCube, 1.0 / 3.0);
+
+            Console.WriteLine($@"
+            m^3 = {mCube} => (m^3)^(1/3) = m = {m}
+        Low exponent attack e = {_e}, m = {m} END ****************");
+        }
+
+        public void LowExponentAttack2(BigInteger c1, BigInteger n1, BigInteger c2, BigInteger n2)
+        {
+            _e = 3;
+
+            Console.WriteLine($@"
+        Low exponent attack, e = 3
+            
+            X = c1 mod N1 = {c1} mod {n1}
+            X = c2 mod N2 = {c2} mod {n2}
+            ");
+
+            var mSq = CryptoUtility.ChineeseRemainderTheorem2(c1, n1, c2, n2);
+            var m = Math.Pow((double)mSq, 1.0 / 2.0);
+
+            Console.WriteLine($@"
+            m^2 = {mSq} => (m^2)^(1/2) = m = {m}
+        Low exponent attack e = {_e}, m = {m} END ****************");
+        }
+
+        public void CommonModulusAttack(BigInteger e1, BigInteger c1, BigInteger e2, BigInteger c2, BigInteger commonModulus)
+        {
+            N = commonModulus;
+
+            if (e1 > e2)
+            {
+                var eTemp = e2;
+                e2 = e1;
+                e1 = eTemp;
+            }
+
+            var gcd = CryptoUtility.EuclideanAlgorithm(e1, e2).gcd;
+            var a = CryptoUtility.ModInverse(e1, e2);
+            var b = (1 - (a * e1)) / e2;
+            Console.WriteLine("************** Common Modulus Attack Start");
+            BigInteger c1PowA = 1;
+            if (a < 0)
+            {
+                Console.WriteLine($";;;;;;;;; a = {a} is < 0, calculate inverse then square and multiply ;;;;;;;;;");
+                var inverse = CryptoUtility.ModInverse(c1, N);
+                a = -a;
+                c1PowA = CryptoUtility.SquareAndMultiply(inverse, a, N);
+                a = -a;
+            }
+            else
+            {
+                c1PowA = CryptoUtility.SquareAndMultiply(c1, a, N);
+
+            }
+
+            BigInteger c2PowB = 1;
+            if (b < 0)
+            {
+                Console.WriteLine($";;;;;;;;; b = {b} is < 0, calculate inverse then square and multiply ;;;;;;;;;");
+                var inverse = CryptoUtility.ModInverse(c2, N);
+                b = -b;
+                c2PowB = CryptoUtility.SquareAndMultiply(inverse, b, N);
+                b = -b;
+            }
+            else
+            {
+                c2PowB = CryptoUtility.SquareAndMultiply(c2, b, N);
+
+            }
+
+            Console.WriteLine($@"
+        Common Modulus Attack
+            e1 = {e1}, c1 = {c1}
+            e2 = {e2}, c2 = {c2}
+            must satisfy condition
+            a * e1 + b * e2 = 1 and gcd(e1, e2) = gcd({e1}, {e2}) = {gcd}
+            then c1^a * c2^b mod N = m
+            a = (e1^-1) mod e2 = ({e1}^-1) mod {e2} = {a}
+            b = [1 - (a * e1)] / e2 = [1 - ({a} * {e1})] / {e1} = [1 - {a * e1}]/{e2} = {1 - (a * e1)} / {e2} = {b}
+            m = c1^a * c2^b mod N = {c1}^{a} * {c2}^{b} mod {N} = {c1PowA} * {c2PowB} mod {N} = {c1PowA%N} * {c2PowB%N} mod {N} = {c1PowA % N * c2PowB % N} mod {N}
+            m = {(c1PowA % N * c2PowB % N) % N}
+        Common Modulus Attack End with m = {(c1PowA % N * c2PowB % N) % N}
+        ");
+        }
+
         #endregion
     }
 }
