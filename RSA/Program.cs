@@ -19,6 +19,10 @@ namespace RSA
 
                 try
                 {
+                    //SqMul();
+                    //Gcd();
+                    //ModInv();
+
                     #region CRT
                     //CRT2();
                     //CRT3();
@@ -28,15 +32,16 @@ namespace RSA
                     //DiffieHellmanKeyAgreement();
                     //DiffieHellmanKeyAgreement_ManInTheMiddleAttack();
                     //DiffieHellmanThreePassEncryption();
-                    //#endregion
+                    #endregion
 
-                    //#region RSA
+                    #region RSA
                     //RsaExample();
                     //RsaDecryptionExample();
                     //RsaWithCrtToSpeedUpDecryption();
+
                     //RsaKnowPhiOfNAttack();
-                    //RsaTwinPrimesAttack();
-                    RsaCommonPAttack();
+                    RsaTwinPrimesAttack();
+                    //RsaCommonPAttack();
                     //RsaLowExponentAttack();
                     //RsaCommonModulusAttack();
                     //RsaChosenCipherTextAttack1Query();
@@ -57,7 +62,31 @@ namespace RSA
             Console.ReadKey();
         }
 
-        #region CRT
+        #region Utils
+        private static void SqMul()
+        {
+            BigInteger a = 13, exponent = 7, n = 101;
+
+            CryptoUtility.SquareAndMultiply(a, exponent, n);
+            Utility.PressAnyKeyToContinue();
+        }
+
+        private static void Gcd()
+        {
+            BigInteger a = 13, n = 101;
+
+            CryptoUtility.EuclideanAlgorithm(a, n);
+            Utility.PressAnyKeyToContinue();
+        }
+
+        private static void ModInv()
+        {
+            BigInteger a = 13, n = 101;
+            
+            CryptoUtility.ModInverse(a, n); 
+            Utility.PressAnyKeyToContinue();
+        }
+
         private static void CRT2()
         {
             BigInteger a1 = 5, n1 = 11;
@@ -77,20 +106,22 @@ namespace RSA
         #endregion
 
         #region D-H
-        private static void DiffieHellmanKeyAgreement()
+        private static void 
+            DiffieHellmanKeyAgreement()
         {
-            var p = 101;
-            var g = 17;
+            var p = 17;
+            var g = 5;
 
-            var a = 19;
-            var b = 13;
+            var a = 7;
+            var b = 9;
 
             var dH = new DiffieHellman(p, g);
             dH.KeyExchange(a, b);
             Utility.PressAnyKeyToContinue();
         }
 
-        private static void DiffieHellmanKeyAgreement_ManInTheMiddleAttack()
+        private static void 
+            DiffieHellmanKeyAgreement_ManInTheMiddleAttack()
         {
             var p = 101;
             var g = 17;
@@ -106,7 +137,8 @@ namespace RSA
             Utility.PressAnyKeyToContinue();
         }
 
-        private static void DiffieHellmanThreePassEncryption()
+        private static void 
+            DiffieHellmanThreePassEncryption()
         {
             var p = 101;
 
@@ -122,7 +154,8 @@ namespace RSA
         #endregion
 
         #region RSA
-        private static void RsaExample()
+        private static void 
+            RsaExample()
         {
             BigInteger p = 19, q = 29, e = 5, m = 11;
 
@@ -133,9 +166,10 @@ namespace RSA
             Utility.PressAnyKeyToContinue();
         }
 
-        private static void RsaDecryptionExample()
+        private static void 
+            RsaDecryptionExample()
         {// Problem 3
-            BigInteger p = 7, q = 11, e = 13, c = 17;
+            BigInteger p = 107, q = 19, e = 1145, c = 355;
 
             var rsa = new Rsa(p, q, e);
             rsa.Decrypt(c);
@@ -143,7 +177,8 @@ namespace RSA
             Utility.PressAnyKeyToContinue();
         }
 
-        private static void RsaWithCrtToSpeedUpDecryption()
+        private static void 
+            RsaWithCrtToSpeedUpDecryption()
         {
             BigInteger p = 13, q = 17, e = 5, m = 4;
 
@@ -154,10 +189,11 @@ namespace RSA
             Utility.PressAnyKeyToContinue();
         }
 
-        private static void RsaKnowPhiOfNAttack()
+        private static void 
+            RsaKnowPhiOfNAttack()
         {
-            var phiOfN = 192;
-            var N = 221;
+            var phiOfN = 1624;
+            var N = 1711;
 
             var rsa = new Rsa();
             rsa.KnownPhiOfNAttack(phiOfN, N);
@@ -165,30 +201,33 @@ namespace RSA
             Utility.PressAnyKeyToContinue();
         }
 
-        private static void RsaTwinPrimesAttack()
+        private static void 
+            RsaTwinPrimesAttack()
         {// prob 6
-            var e = 8743;
-            var c = 99;
+            //var e = 8743;
+            //var c = 99;
 
             var rsa = new Rsa();
-            rsa.TwinPrimesAttack(11663);
+            rsa.TwinPrimesAttack(213443);
             // after recovering private keys, decrypt cipher
-            rsa.Init(rsa.P, rsa.Q, e);
-            rsa.Decrypt(c);
+            //rsa.Init(rsa.P, rsa.Q, e);
+            //rsa.Decrypt(c);
 
             Utility.PressAnyKeyToContinue();
         }
 
-        private static void RsaCommonPAttack()
+        private static void 
+            RsaCommonPAttack()
         {// problem 4
-            BigInteger n1 = 22577, n2 = 16157;
+            BigInteger n1 = 10379, n2 = 2033;
             var rsa = new Rsa();
             rsa.CommonPAttack(n1, n2);
 
             Utility.PressAnyKeyToContinue();
         }
 
-        private static void RsaLowExponentAttack()
+        private static void 
+            RsaLowExponentAttack()
         {// prob 7
             BigInteger c1 = 128, n1 = 319;
             BigInteger c2 = 34, n2 = 697;
@@ -200,16 +239,18 @@ namespace RSA
             Utility.PressAnyKeyToContinue();
         }
 
-        private static void RsaCommonModulusAttack()
+        private static void 
+            RsaCommonModulusAttack()
         {// Problem 5
-            BigInteger e1 = 7, c1 = 42, e2 = 17, c2 = 9, commonModulus = 143;
+            BigInteger e1 = 17, c1 = 122, e2 = 7, c2 = 12, commonModulus = 209;
             var rsa = new Rsa();
             rsa.CommonModulusAttack(e1, c1, e2, c2, commonModulus);
 
             Utility.PressAnyKeyToContinue();
         }
 
-        private static void RsaChosenCipherTextAttack1Query()
+        private static void 
+            RsaChosenCipherTextAttack1Query()
         {// side effect of RSA multiplicative property
             // 1. get c from oracle and try to decrypt it
             var mOriginal = 40;
@@ -251,7 +292,8 @@ namespace RSA
             Utility.PressAnyKeyToContinue();
         }
 
-        private static void RsaChosenCipherTextAttack2Query()
+        private static void 
+            RsaChosenCipherTextAttack2Query()
         {// side effect of RSA multiplicative property
             // 1. get c from oracle and try to decrypt it
             var mOriginal = 40;
@@ -302,7 +344,8 @@ namespace RSA
             Utility.PressAnyKeyToContinue();
         }
 
-        private static void RsaDixonRandomSquareAlgorithm()
+        private static void 
+            RsaDixonRandomSquareAlgorithm()
         {
             BigInteger n = 77, x = 68, y = 2;
             CryptoUtility.DixonRandomSquareAlgorithm(n, x, y);

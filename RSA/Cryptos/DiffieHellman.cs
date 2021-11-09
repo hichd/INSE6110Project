@@ -94,10 +94,10 @@ namespace RSA.Cryptos
         and 0 <= a <= P - 2                                                                         and 0 <= b <= P - 2
         0 <= {_a1} <= {P - 2}                                                                               0 <= {_b1} <= {P - 2}");
             Console.WriteLine($"          ------ Alice sends cipher = ({_g}^{_a1}) mod {P} = {aCipher} to Bob ---->");
-            Console.WriteLine($"                                               Eve intercepts, blocks and choses a' = {_a1Eve}");
+            Console.WriteLine($"                                               Eve intercepts, blocks and chooses a' = {_a1Eve}");
             Console.WriteLine($"                                               ----------- sends cipher = ({_g}^{_a1Eve}) mod {P} = {aEveCipher} to Bob ------->");
             Console.WriteLine($"                                                     <----- Bob sends cipher = ({_g}^{_b1}) mod {P} = {bCipher} to Alice ---");
-            Console.WriteLine($"                                        Eve intercepts, bloacks and choses b' = {_b1Eve}");
+            Console.WriteLine($"                                        Eve intercepts, bloacks and chooses b' = {_b1Eve}");
             Console.WriteLine($"          <----- Eve intercepts sends cipher = ({_g}^{_b1Eve}) mod {P} = {bEveCipher} to Alice -------");
             Console.WriteLine($@"       Alice solves key = ({bEveCipher}^{_a1}) mod {P} = {aKey}                                      Bob solves key = ({aEveCipher}^{_b1}) mod {P} = {bKey}");
             Console.WriteLine($"************************************************************************************************************************************");

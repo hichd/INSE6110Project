@@ -236,16 +236,25 @@ namespace Cryptos
         {
             Console.WriteLine("***************************** RSA Decryption with CRT ***************************");
             Console.WriteLine($@"
+    since N = P * Q
+    divide m into m_p and m_q such that m = m_p mod P * m_q mod Q = ? mod (P * Q)
+
     m_p = ({c}^{_d}) mod {P} = ({c} mod {P})^({_d} mod ({P} - 1)) mod {P} = ({c % P}^{_d % (P - 1)}) mod {P}
     m_q = ({c}^{_d}) mod {Q} = ({c} mod {Q})^({_d} mod ({Q} - 1)) mod {Q} = ({c % Q}^{_d % (Q - 1)}) mod {Q}
+
+    solve m_p and m_q with square and multiply 
+
             ");
 
             var m_p = CryptoUtility.SquareAndMultiply(c % P, _d % (P - 1), N) % P;
             var m_q = CryptoUtility.SquareAndMultiply(c % Q, _d % (Q - 1), N) % Q;
 
             Console.WriteLine($@"
+
     m_p = ({c % P}^{_d % (P - 1)}) mod {P} = {m_p} mod {P}
     m_q = ({c % Q}^{_d % (Q - 1)}) mod {Q} = {m_q} mod {Q}
+
+    now we can use CRT to solve
             ");
 
             var message = CryptoUtility.ChineeseRemainderTheorem2(m_p, P, m_q, Q);

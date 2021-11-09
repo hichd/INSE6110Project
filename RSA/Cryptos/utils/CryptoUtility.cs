@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using utils;
 
@@ -91,7 +92,7 @@ namespace RSA.Cryptos.utils
                 c = result;
             }
 
-            Utility.ShowSteps($"                   ({a}^-1) mod {n} = {result}", showSteps);
+            Utility.ShowSteps($"                   ({a}^-1) mod {n} = {result} mod {n}", showSteps);
             if (result < 0) result += n;
             Utility.ShowSteps($"                   +++ Extended Euclidean Algorithm END with ({a}^-1) mod {n} = {result} +++", showSteps);
 
@@ -142,6 +143,7 @@ namespace RSA.Cryptos.utils
 
             BigInteger result = 1;
             var exponentiationResult = m;
+            var multiplicationElements = new List<BigInteger>();
 
             for (var exponent = 0; exponent <= maxExponent; exponent++)
             {
@@ -157,15 +159,18 @@ namespace RSA.Cryptos.utils
 
                 if (eBinary[exponent] == '1')
                 {
+                    multiplicationElements.Add(exponentiationResult);
                     result *= exponentiationResult;
                 }
 
                 Utility.ShowSteps($"({m}^{Math.Pow(2, exponent)}) mod {n} = {exponentiationResult}, {eBinary[exponent]} <-- 2^{exponent}", showSteps);
             }
 
+            var multiplicationRepresentation = string.Join(" * ", multiplicationElements.Select(x => x.ToString()).ToArray());
+
             Utility.ShowSteps($"{result} mod {n}", showSteps);
             result %= n;
-            Utility.ShowSteps($"================== Square And Multiply END, ({m}^{e}) mod {n} = {result} mod {n} = {result}  ============", showSteps);
+            Utility.ShowSteps($"================== Square And Multiply END, ({m}^{e}) mod {n} = {result} mod {n} = {multiplicationRepresentation} mod {n} = {multiplicationElements.Aggregate((a, x) => a * x)} mod {n} = {result}  ============", showSteps);
             return result;
         }
 
