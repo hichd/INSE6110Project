@@ -15,11 +15,14 @@ namespace Profiles
         public List<BigInteger> CipherList;
         public string Cipher;
         public int ID;
+        public string MessageToSign { get; set; }
+        public string MessageToSignChunks { get; set; }
+        public string Signature { get; set; }
 
         public List<BigInteger> EncryptMessage(string message = null)
         {
             Message = message ?? Message;
-            MessageChunks = $"['{string.Join("', '", Message.ChunksUpto(3))}]";
+            MessageChunks = $"['{string.Join("', '", Message.ChunksUpto(3))}']";
             CipherList = Rsa.Encrypt(Message);
             Cipher = $"[{string.Join(", ", CipherList)}]";
             return CipherList;

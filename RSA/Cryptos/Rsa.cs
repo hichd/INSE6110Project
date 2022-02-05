@@ -11,7 +11,7 @@ namespace Cryptos
     /// </summary>
     public class Rsa
     {
-        private const bool ShowSteps = true;
+        private const bool ShowSteps = false;
 
         #region private paramters
         public BigInteger P { get; set; }
@@ -441,7 +441,6 @@ namespace Cryptos
         Common Modulus Attack End with m = {(c1PowA % N * c2PowB % N) % N}
         ");
         }
-
         #endregion
     }
 }

@@ -18,17 +18,24 @@ namespace Profiles
             PhiOfN = CryptoUtility.RsaPhiFunction(P, Q);
             N = new BigInteger(1282997161);
             _e = 311;
-            ID = 222222222;
-            Message = "RSA IS THE WAY";
+            ID = 27775237;
+            Message = "RSA";
             Rsa = new Rsa(P, Q, _e, _d);
+            MessageToSign = "Hicham Daou";
+            DecryptAndSign();
         }
 
-        public void DecryptCipherList(List<BigInteger> cipherList = null)
+        public void DecryptAndSign()
         {
-            CipherList = cipherList ?? EncryptMessage();
+            // decrypt partner's cipher text
+            CipherList = new List<BigInteger> { 970461482 };
             Cipher = $"[{string.Join(", ", CipherList)}]";
             Message = Rsa.Decrypt(CipherList);
-            MessageChunks = $"['{string.Join("', '", Message.ChunksUpto(3))}]";
+            MessageChunks = $"['{string.Join("', '", Message.ChunksUpto(3))}']";
+
+            // sign message to send to partner
+            MessageToSignChunks = $"['{string.Join("', '", MessageToSign.ChunksUpto(3))}']";
+            Signature = $"['{string.Join("', '", Rsa.Encrypt(MessageToSign, _d, N, false))}']";
         }
     }
 }

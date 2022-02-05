@@ -137,6 +137,11 @@ namespace utils
             var message = string.Empty;
 
             var charList = new List<char>();
+            if (hexArr[0].Length < 6 )
+            {
+                var t = hexArr[0].PadLeft(6, '0');
+                hexArr[0] = t;
+            }
             hexArr.ForEach(x =>// character representation
             {
                 for (var i = 0; i < x.Length; i += 2)
@@ -166,8 +171,6 @@ namespace utils
             var showSteps = true;
             var partner = new PartnerDataProfile();
             var myData = new MyDataProfile();
-            partner.EncryptMessage();
-            myData.DecryptCipherList();
 
             var txt = $@"
 # IDs
@@ -195,6 +198,17 @@ MY_CIPHERTEXT = {partner.Cipher}
 PARTNER_CIPHERTEXT = {myData.Cipher}
 PARTNER_MESSAGE_chunks_AFTER_DECRYPT = {myData.MessageChunks}
 PARTNER_MESSAGE_AFTER_DECRYPT = '{myData.Message}'
+
+# sign
+MY_MESSAGE_TO_BE_SIGNED = '{myData.MessageToSign}'
+MY_MESSAGE_TO_BE_SIGNED_chunks = {myData.MessageToSignChunks}
+MY_SIGNATURE = {myData.Signature}
+
+# verify the signature 
+PARTNER_SIGNED_MESSAGE = {partner.OriginalSignedMessage}
+PARTNER_SIGNATURE = {partner.Signature}
+#IS_VALID_SIGNATURE should be True or False
+IS_VALID_SIGNATURE  = {partner.OriginalSignedMessage.Equals(partner.MessageToSign)}
             ";
 
             string[] lines = txt.Split('\n');

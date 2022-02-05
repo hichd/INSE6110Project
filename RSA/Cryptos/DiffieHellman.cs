@@ -21,7 +21,7 @@ namespace RSA.Cryptos
         public BigInteger _b2;
         public BigInteger bCipher;
         public BigInteger bKey;
-        // Ever: attacker
+        // Eve: attacker
         public BigInteger _a1Eve;
         public BigInteger _b1Eve;
         public BigInteger aEveCipher;
